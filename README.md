@@ -10,3 +10,6 @@ Proyecto de Terraform con LocalStack para prácticas de administración de siste
 - `modules/mi-recurso/` - Modulo reutilizable para buckets S3
 - `.github/workflows/` - Workflows de GitHub Actions
  
+# nota
+# nota2
+# nota3
