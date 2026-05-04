@@ -1,0 +1,57 @@
+name: Deploy Terraform en LocalStack
+ 
+on:
+  push:
+    branches:
+      - main
+ 
+jobs:
+  terraform-deploy:
+    runs-on: ubuntu-latest
+ 
+    services:
+      localstack:
+        image: localstack/localstack:3.0
+        ports:
+          - 4566:4566
+        env:
+          DOCKER_HOST: unix:///var/run/docker.sock
+ 
+    steps:
+      - name: Clonar el repositorio
+        uses: actions/checkout@v4
+ 
+      - name: Instalar Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '>=1.0'
+ 
+      - name: Esperar a que LocalStack este listo
+        run: |
+          for i in $(seq 1 30); do
+            curl -s http://localhost:4566/_localstack/health && break
+            echo 'Esperando LocalStack...'
+            sleep 2
+          done
+ 
+      - name: Terraform Init
+        run: terraform init
+        env:
+          AWS_ACCESS_KEY_ID: test
+          AWS_SECRET_ACCESS_KEY: test
+          AWS_DEFAULT_REGION: us-east-1
+ 
+      - name: Terraform Plan
+        run: terraform plan
+        env:
+          AWS_ACCESS_KEY_ID: test
+          AWS_SECRET_ACCESS_KEY: test
+          AWS_DEFAULT_REGION: us-east-1
+ 
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        env:
+          AWS_ACCESS_KEY_ID: test
+          AWS_SECRET_ACCESS_KEY: test
+          AWS_DEFAULT_REGION: us-east-1
+
